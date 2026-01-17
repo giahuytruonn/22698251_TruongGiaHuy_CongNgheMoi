@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management | Ant Design</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.15/antd.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ant-primary-color: #52c41a;
+            /* Ant Design Success Green */
+            --ant-primary-hover: #73d13d;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 24px;
+        }
+
+        .page-header {
+            background: #fff;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .ant-btn-primary {
+            background-color: var(--ant-primary-color);
+            border-color: var(--ant-primary-color);
+        }
+
+        .ant-btn-primary:hover,
+        .ant-btn-primary:focus {
+            background-color: var(--ant-primary-hover);
+            border-color: var(--ant-primary-hover);
+        }
+
+        .content-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 2px;
+        }
+
+        .section-title {
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 3px;
+            height: 16px;
+            background: var(--ant-primary-color);
+            margin-right: 8px;
+            border-radius: 1px;
+        }
+
+        /* Responsive Form Grid */
+        .ant-form-inline {
+            gap: 16px;
+            margin-bottom: 32px;
+            background: #fafafa;
+            padding: 20px;
+            border: 1px solid #f0f0f0;
+            border-radius: 2px;
+        }
+
+        /* Ant Design Table Style Simulation */
+        .custom-table {
+            width: 100%;
+            border-radius: 2px 2px 0 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .custom-table thead th {
+            background: #fafafa;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s ease;
+        }
+
+        .custom-table tbody td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .custom-table tr:hover td {
+            background: #f6ffed;
+            /* Light green hover */
+        }
+
+        .price-text {
+            color: #ff4d4f;
+            /* AntD Error Red for price emphasizes value */
+            font-weight: 500;
+        }
+
+        .quantity-tag {
+            background: #f5f5f5;
+            border: 1px solid #d9d9d9;
+            padding: 1px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 style="margin: 0; font-size: 20px; font-weight: 600;">Inventory Dashboard</h1>
+            <span style="color: #8c8c8c; font-size: 14px;">Enterprise Resource Planning / Products</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <span style="color: #52c41a; font-weight: 500;">
+                Xin chào, <strong>
+                    <%= currentUser %>
+                </strong>
+            </span>
+            <a href="/logout" class="ant-btn ant-btn-danger"
+                style="text-decoration: none; padding: 4px 15px; border-radius: 2px; background: #ff4d4f; color: #fff; border: none;">
+                Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="section-title" id="form-title">Add New Product</div>
+
+        <form action="/add" method="post" class="ant-form ant-form-inline" id="productForm">
+            <input type="hidden" name="id" id="prod-id">
+
+            <div class="ant-row ant-form-item">
+                <div class="ant-form-item-label"><label>Name</label></div>
+                <div class="ant-form-item-control">
+                    <input class="ant-input" name="name" id="prod-name" placeholder="Name" required>
+                </div>
+            </div>
+
+            <div class="ant-row ant-form-item">
+                <div class="ant-form-item-label"><label>Price</label></div>
+                <div class="ant-form-item-control">
+                    <input class="ant-input" type="number" step="0.01" name="price" id="prod-price" placeholder="0.00"
+                        required>
+                </div>
+            </div>
+
+            <div class="ant-row ant-form-item">
+                <div class="ant-form-item-label"><label>Quantity</label></div>
+                <div class="ant-form-item-control">
+                    <input class="ant-input" type="number" name="quantity" id="prod-quantity" placeholder="Qty"
+                        required>
+                </div>
+            </div>
+
+            <div class="ant-form-item" style="display: flex; gap: 8px;">
+                <button type="submit" class="ant-btn ant-btn-primary" id="submit-btn">
+                    <span>Add Product</span>
+                </button>
+
+                <button type="button" id="delete-btn" class="ant-btn ant-btn-danger" style="display: none;"
+                    onclick="handleDelete()">
+                    Delete
+                </button>
+
+                <button type="button" class="ant-btn" onclick="resetForm()">Clear</button>
+            </div>
+        </form>
+
+        <div class="section-title">Product List (Click row to edit)</div>
+
+        <div class="ant-table-wrapper">
+            <div class="ant-table">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% products.forEach(p=> { %>
+                            <tr style="cursor: pointer;"
+                                onclick="fillForm('<%= p.id %>', '<%= p.name %>', '<%= p.price %>', '<%= p.quantity %>')">
+                                <td style="font-family: monospace; color: #1890ff;">#<%= p.id %>
+                                </td>
+                                <td style="color: rgba(0,0,0,0.85); font-weight: 500;">
+                                    <%= p.name %>
+                                </td>
+                                <td class="price-text">$<%= parseFloat(p.price).toFixed(2) %>
+                                </td>
+                                <td><span class="quantity-tag">
+                                        <%= p.quantity %> units
+                                    </span></td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fillForm(id, name, price, quantity) {
+            document.getElementById('form-title').innerText = "Edit Product #" + id;
+            document.getElementById('prod-id').value = id;
+            document.getElementById('prod-name').value = name;
+            document.getElementById('prod-price').value = price;
+            document.getElementById('prod-quantity').value = quantity;
+
+            document.getElementById('submit-btn').innerHTML = "<span>Update Product</span>";
+            document.getElementById('delete-btn').style.display = "inline-block";
+        }
+
+        function resetForm() {
+            document.getElementById('form-title').innerText = "Add New Product";
+            document.getElementById('productForm').reset();
+            document.getElementById('prod-id').value = "";
+
+            document.getElementById('submit-btn').innerHTML = "<span>Add Product</span>";
+            document.getElementById('delete-btn').style.display = "none";
+        }
+
+        function handleDelete() {
+            const id = document.getElementById('prod-id').value;
+            if (id && confirm('Delete this product?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/delete/' + id;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+
+</body>
+
+</html>
