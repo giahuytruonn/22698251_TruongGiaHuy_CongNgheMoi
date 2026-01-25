@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-cube"></i> ProductManager
+                </div>
+                <div class="nav-links">
+                    <a href="/products"
+                        class="<%= typeof path !== 'undefined' && path === '/products' ? 'active' : '' %>">
+                        <i class="fas fa-list"></i> Products
+                    </a>
+                    <a href="/products/create"
+                        class="<%= typeof path !== 'undefined' && path === '/products/create' ? 'active' : '' %>">
+                        <i class="fas fa-plus"></i> New Product
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <%- body %>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <%= new Date().getFullYear() %> Product Management System. Built with Node.js & DynamoDB.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
