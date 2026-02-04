@@ -1,0 +1,70 @@
+<div class="page-header">
+    <h1>Category Management</h1>
+</div>
+
+<div class="container" style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+
+    <!-- Add Category Form -->
+    <div class="form-card" style="margin: 0; max-width: 100%;">
+        <div style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Add New Category</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Create a new category for your products.</p>
+        </div>
+
+        <form action="/categories" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" class="form-control" required placeholder="e.g. Laptops">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description" class="form-control" placeholder="Optional description..."
+                    rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-plus"></i> Add Category
+            </button>
+        </form>
+    </div>
+
+    <!-- Categories List -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(categories.length> 0) { %>
+                    <% categories.forEach(cat=> { %>
+                        <tr>
+                            <td style="font-weight: 500; color: white;">
+                                <%= cat.name %>
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                <%= cat.description || '-' %>
+                            </td>
+                            <td style="text-align: right;">
+                                <form action="/categories/<%= cat.categoryId %>/delete" method="POST"
+                                    onsubmit="return confirm('Delete this category?');" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger"
+                                        style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 2rem;">No categories found.</td>
+                                </tr>
+                                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+</div>

@@ -1,42 +1,51 @@
-<%- include('../partials/header') %>
+<div class="page-header" style="justify-content: center;">
+    <h1>Add New Product</h1>
+</div>
 
-    <div class="page-header">
-        <h1>Create Product</h1>
-        <a href="/products" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
-    </div>
+<div class="form-card">
+    <form action="/products" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">Product Name</label>
+            <input type="text" id="name" name="name" class="form-control" required placeholder="e.g. Wireless Mouse">
+        </div>
 
-    <div class="form-card">
-        <form action="/products" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="name">Product Name</label>
-                <input type="text" id="name" name="name" class="form-control" required placeholder="Enter product name">
+        <div class="form-group">
+            <label for="categoryId">Category</label>
+            <select id="categoryId" name="categoryId" class="form-control" required>
+                <option value="">Select Category</option>
+                <% if(typeof categories !=='undefined' ) { %>
+                    <% categories.forEach(cat=> { %>
+                        <option value="<%= cat.categoryId %>">
+                            <%= cat.name %>
+                        </option>
+                        <% }) %>
+                            <% } %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="price">Price ($)</label>
+            <input type="number" id="price" name="price" class="form-control" required min="0" step="0.01"
+                placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Stock Quantity</label>
+            <input type="number" id="quantity" name="quantity" class="form-control" required min="0" placeholder="0">
+        </div>
+
+        <div class="form-group">
+            <label for="image">Product Image</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="image" name="image" class="form-control" style="padding: 10px;">
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="price">Price ($)</label>
-                <input type="number" id="price" name="price" class="form-control" required min="0" step="0.01"
-                    placeholder="0.00">
-            </div>
-
-            <div class="form-group">
-                <label for="quantity">Quantity</label>
-                <input type="number" id="quantity" name="quantity" class="form-control" required min="0"
-                    placeholder="0">
-            </div>
-
-            <div class="form-group">
-                <label for="image">Product Image</label>
-                <input type="file" id="image" name="image" class="form-control" accept="image/*">
-            </div>
-
-            <div class="form-group" style="text-align: right; margin-bottom: 0;">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Product
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <%- include('../partials/footer') %>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <a href="/products" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">
+                <i class="fas fa-save"></i> Create Product
+            </button>
+        </div>
+    </form>
+</div>

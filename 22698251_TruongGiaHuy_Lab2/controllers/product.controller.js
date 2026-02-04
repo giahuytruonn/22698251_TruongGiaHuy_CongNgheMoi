@@ -1,100 +1,61 @@
-const { PutCommand, ScanCommand, GetCommand, UpdateCommand, DeleteCommand } =
-    require("@aws-sdk/lib-dynamodb");
-const { ddbDocClient: ddb } = require("../services/dynamodb");
-const { uploadImage, deleteImageByUrl } = require("../services/s3");
-const { v4: uuidv4 } = require("uuid");
-
-exports.createProduct = async (req, res) => {
-    const { name, price, quantity } = req.body;
-    const imageUrl = req.file ? await uploadImage(req.file) : "";
-
-    await ddb.send(new PutCommand({
-        TableName: process.env.DYNAMODB_TABLE,
-        Item: {
-            id: uuidv4(),
-            name,
-            price: Number(price),
-            quantity: Number(quantity),
-            url_image: imageUrl
-        }
-    }));
-
-    res.redirect("/products");
-};
+const productService = require("../services/product.service");
+const categoryService = require("../services/category.service");
 
 exports.getAllProducts = async (req, res) => {
-    const result = await ddb.send(new ScanCommand({
-        TableName: process.env.DYNAMODB_TABLE
-    }));
+    // Filters
+    const { name, categoryId, minPrice, maxPrice } = req.query;
 
-    res.render("products/index", { products: result.Items, path: '/products' });
+    // Pass filters to service
+    const products = await productService.getAllProducts({
+        name, categoryId, minPrice, maxPrice
+    });
+
+    const categories = await categoryService.getAll();
+
+    res.render("products/index", {
+        products,
+        categories,
+        filters: { name, categoryId, minPrice, maxPrice },
+        path: '/products'
+    });
 };
 
-exports.renderCreatePage = (req, res) => {
-    res.render("products/create", { path: '/products/create' });
+exports.renderCreatePage = async (req, res) => {
+    const categories = await categoryService.getAll();
+    res.render("products/create", { categories, path: '/products/create' });
+};
+
+exports.createProduct = async (req, res) => {
+    const userId = req.session.user ? req.session.user.userId : 'system';
+    await productService.createProduct(req.body, req.file, userId);
+    res.redirect("/products");
 };
 
 exports.renderEditPage = async (req, res) => {
     const { id } = req.params;
-    const data = await ddb.send(new GetCommand({
-        TableName: process.env.DYNAMODB_TABLE,
-        Key: { id }
-    }));
+    const product = await productService.getProductById(id);
+    const categories = await categoryService.getAll();
 
-    if (!data.Item) {
+    if (!product) {
         return res.redirect("/products");
     }
 
-    res.render("products/edit", { product: data.Item, path: '/products' });
+    res.render("products/edit", { product, categories, path: '/products' });
 };
 
 exports.updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, price, quantity } = req.body;
+    const userId = req.session.user ? req.session.user.userId : 'system';
 
-    let updateExp = "set #n=:n, price=:p, quantity=:q";
-    let expAttr = {
-        "#n": "name"
-    };
-    let values = {
-        ":n": name,
-        ":p": Number(price),
-        ":q": Number(quantity)
-    };
-
-    if (req.file) {
-        const imageUrl = await uploadImage(req.file);
-        updateExp += ", url_image=:i";
-        values[":i"] = imageUrl;
-    }
-
-    await ddb.send(new UpdateCommand({
-        TableName: process.env.DYNAMODB_TABLE,
-        Key: { id },
-        UpdateExpression: updateExp,
-        ExpressionAttributeNames: expAttr,
-        ExpressionAttributeValues: values
-    }));
-
+    await productService.updateProduct(id, req.body, req.file, userId);
     res.redirect("/products");
 };
 
 exports.deleteProduct = async (req, res) => {
     const { id } = req.params;
+    const userId = req.session.user ? req.session.user.userId : 'system';
 
-    const data = await ddb.send(new GetCommand({
-        TableName: process.env.DYNAMODB_TABLE,
-        Key: { id }
-    }));
-
-    if (data.Item?.url_image) {
-        await deleteImageByUrl(data.Item.url_image);
-    }
-
-    await ddb.send(new DeleteCommand({
-        TableName: process.env.DYNAMODB_TABLE,
-        Key: { id }
-    }));
-
+    await productService.deleteProduct(id, userId);
     res.redirect("/products");
 };
+
