@@ -1,0 +1,43 @@
+<%- include("../partials/header") %>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Edit Product</h2>
+    <p>Update details and preview the current image.</p>
+  </div>
+  <form class="form" method="POST" action="/products/<%= product.id %>?_method=PUT" enctype="multipart/form-data">
+    <div class="form-grid">
+      <label>
+        Name
+        <input type="text" name="name" value="<%= product.name %>" required />
+      </label>
+      <label>
+        Price
+        <input type="number" step="0.01" name="price" value="<%= product.price %>" required />
+      </label>
+      <label class="full">
+        Image URL (optional)
+        <input type="text" name="url_image" value="<%= product.url_image %>" />
+      </label>
+      <label class="full">
+        Upload New Image
+        <input type="file" name="image" accept="image/*" />
+      </label>
+      <div class="full preview">
+        <span>Current Image</span>
+        <% if (product.url_image) { %>
+          <img src="<%= product.url_image %>" alt="<%= product.name %>" />
+        <% } else { %>
+          <div class="placeholder">No image</div>
+        <% } %>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="button" type="submit">Update</button>
+      <a class="button ghost" href="/products">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<%- include("../partials/footer") %>
+

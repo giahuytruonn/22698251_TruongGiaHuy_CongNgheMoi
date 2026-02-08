@@ -1,0 +1,27 @@
+# 1. Dependencies (Nặng, không cần commit)
+node_modules/
+
+# 2. Environment Variables (RẤT QUAN TRỌNG - Bảo mật)
+.env
+.env.local
+.env.*
+
+# 3. Database & Data (Dựa trên ảnh của bạn)
+# File này là database local, không được đẩy lên git
+docker/dynamodb/shared-local-instance.db
+*.db
+*.sqlite
+
+# 4. Logs (File nhật ký lỗi)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# 5. OS & IDE System Files (File rác của máy tính/Code Editor)
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

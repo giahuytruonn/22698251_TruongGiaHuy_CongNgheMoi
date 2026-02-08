@@ -1,0 +1,40 @@
+<%- include("../partials/header") %>
+
+<section class="hero">
+  <div>
+    <h2>Your Products</h2>
+    <p>Track pricing, manage images, and keep your catalog up to date.</p>
+  </div>
+  <a class="button" href="/products/create">Create Product</a>
+</section>
+
+<section class="grid">
+  <% if (products.length === 0) { %>
+    <div class="empty-card">No products yet. Create your first one.</div>
+  <% } %>
+  <% products.forEach((product) => { %>
+    <article class="product-card">
+      <div class="product-image">
+        <% if (product.url_image) { %>
+          <img src="<%= product.url_image %>" alt="<%= product.name %>" />
+        <% } else { %>
+          <div class="placeholder">No image</div>
+        <% } %>
+      </div>
+      <div class="product-body">
+        <h3><%= product.name %></h3>
+        <div class="price">$<%= product.price %></div>
+        <div class="meta">ID: <%= product.id %></div>
+      </div>
+      <div class="product-actions">
+        <a class="button ghost" href="/products/<%= product.id %>/edit">Edit</a>
+        <form method="POST" action="/products/<%= product.id %>?_method=DELETE">
+          <button class="button danger" type="submit">Delete</button>
+        </form>
+      </div>
+    </article>
+  <% }) %>
+</section>
+
+<%- include("../partials/footer") %>
+
