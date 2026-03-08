@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Info - <%= studentInfo.name %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Student Profile</h1>
+        </header>
+        <main>
+            <div class="card">
+                <div class="profile-icon">
+                    <span><%= studentInfo.name.charAt(0) %></span>
+                </div>
+                <div class="info-group">
+                    <label>Name</label>
+                    <p class="value"><%= studentInfo.name %></p>
+                </div>
+                <div class="info-group">
+                    <label>Student ID</label>
+                    <p class="value"><%= studentInfo.studentId %></p>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <p>Cloud Computing lab assignment deployed on AWS Elastic Beanstalk.</p>
+        </footer>
+    </div>
+</body>
+</html>
