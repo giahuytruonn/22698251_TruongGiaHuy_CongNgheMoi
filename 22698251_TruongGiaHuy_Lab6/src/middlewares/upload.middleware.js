@@ -1,11 +1,15 @@
 const multer = require('multer');
+const multerS3 = require('multer-s3');
 const path = require('path');
+const { s3Client, S3_BUCKET_NAME } = require('../config/aws.config');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../../public/images/uploads'));
+const storage = multerS3({
+    s3: s3Client,
+    bucket: S3_BUCKET_NAME,
+    metadata: function (req, file, cb) {
+        cb(null, { fieldName: file.fieldname });
     },
-    filename: function (req, file, cb) {
+    key: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }

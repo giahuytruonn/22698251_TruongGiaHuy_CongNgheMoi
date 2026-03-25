@@ -1,7 +1,25 @@
 const Product = require('../models/Product');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const path = require('path');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const { s3Client, S3_BUCKET_NAME } = require('../config/aws.config');
+
+const deleteImageFromS3 = async (imageUrl) => {
+    if (!imageUrl || imageUrl.includes('default.png')) return;
+    
+    // imageUrl format: https://bucket-name.s3.region.amazonaws.com/products/filename.png
+    try {
+        const urlObj = new URL(imageUrl);
+        // Remove leading slash for the Key: /products/filename.png -> products/filename.png
+        const key = decodeURIComponent(urlObj.pathname.substring(1));
+        
+        await s3Client.send(new DeleteObjectCommand({
+            Bucket: S3_BUCKET_NAME,
+            Key: key
+        }));
+    } catch (error) {
+        console.error("Failed to delete image from S3:", error);
+    }
+};
 
 exports.listProducts = async (req, res) => {
     try {
@@ -28,15 +46,14 @@ exports.postAddProduct = async (req, res) => {
     try {
         const { name, price, unit_in_stock } = req.body;
         
-        // Data validation
         if (!name || !price || !unit_in_stock) {
             req.flash('error_msg', 'Please fill in all fields');
             return res.redirect('/add');
         }
 
-        let url_image = '/images/default.png'; // default
+        let url_image = '/images/default.png'; // default local fallback if needed
         if (req.file) {
-            url_image = '/images/uploads/' + req.file.filename;
+            url_image = req.file.location; // S3 URL provided by multer-s3
         }
 
         const newProduct = {
@@ -76,7 +93,6 @@ exports.postEditProduct = async (req, res) => {
         const id = req.params.id;
         const { name, price, unit_in_stock } = req.body;
 
-        // Validation
         if (!name || !price || !unit_in_stock) {
             req.flash('error_msg', 'Please fill all required fields');
             return res.redirect(`/edit/${id}`);
@@ -89,15 +105,12 @@ exports.postEditProduct = async (req, res) => {
         };
 
         if (req.file) {
-            updates.url_image = '/images/uploads/' + req.file.filename;
+            updates.url_image = req.file.location;
 
-            // Handle old image deletion (bonus point)
+            // Handle old image deletion from S3
             const oldProduct = await Product.getById(id);
-            if (oldProduct && oldProduct.url_image && !oldProduct.url_image.includes('default.png')) {
-                const oldImagePath = path.join(__dirname, '../../public', oldProduct.url_image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
+            if (oldProduct && oldProduct.url_image) {
+                await deleteImageFromS3(oldProduct.url_image);
             }
         }
 
@@ -115,13 +128,9 @@ exports.deleteProduct = async (req, res) => {
     try {
         const id = req.params.id;
         
-        // Handle old image deletion (bonus point)
         const oldProduct = await Product.getById(id);
-        if (oldProduct && oldProduct.url_image && !oldProduct.url_image.includes('default.png')) {
-            const oldImagePath = path.join(__dirname, '../../public', oldProduct.url_image);
-            if (fs.existsSync(oldImagePath)) {
-                fs.unlinkSync(oldImagePath);
-            }
+        if (oldProduct && oldProduct.url_image) {
+            await deleteImageFromS3(oldProduct.url_image);
         }
 
         await Product.delete(id);
